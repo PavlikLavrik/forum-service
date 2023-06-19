@@ -19,7 +19,7 @@ import telran.java47.accounting.dao.UserAccountRepository;
 @Component
 @Order(20)
 @RequiredArgsConstructor
-public class AdminFilter implements Filter {
+public class RolesManagingFilter implements Filter {
 
 	final UserAccountRepository userAccountRepository;
 	
