@@ -1,5 +1,6 @@
 package telran.java47.accounting.service;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +13,6 @@ import telran.java47.accounting.dto.UserRegisyterDto;
 import telran.java47.accounting.dto.exceptions.UserExistsException;
 import telran.java47.accounting.dto.exceptions.UserNotFoundException;
 import telran.java47.accounting.model.UserAccount;
-import telran.java47.post.dto.PostDto;
-import telran.java47.post.dto.exceptions.PostNotFoundException;
-import telran.java47.post.model.Post;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +27,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 			throw new UserExistsException();
 		}
 		UserAccount userAccount = modelMapper.map(userRegisyterDto, UserAccount.class);
+		String password= BCrypt.hashpw(userRegisyterDto.getPassword(), BCrypt.gensalt());
+		userAccount.setPassword(password);
 		userAccount.addRole("USER");
 		userAccountRepository.save(userAccount);
 		return modelMapper.map(userAccount, UserDto.class);
@@ -78,7 +78,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 	@Override
 	public void changePassword(String login, String newPassword) {
 		UserAccount userAccount = userAccountRepository.findById(login).orElseThrow(UserNotFoundException::new);
-		userAccount.setPassword(newPassword);
+		String password= BCrypt.hashpw(newPassword, BCrypt.gensalt());
+		userAccount.setPassword(password);
 		userAccountRepository.save(userAccount);
 
 	}
