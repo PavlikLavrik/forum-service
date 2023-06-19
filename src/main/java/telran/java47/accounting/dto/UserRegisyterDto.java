@@ -1,0 +1,12 @@
+package telran.java47.accounting.dto;
+
+import lombok.Getter;
+
+@Getter
+public class UserRegisyterDto {
+	String login;
+	String password;
+	String firstName;
+	String lastName;
+	
+}
