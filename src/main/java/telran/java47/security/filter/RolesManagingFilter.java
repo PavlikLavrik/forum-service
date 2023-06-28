@@ -15,10 +15,11 @@ import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import telran.java47.accounting.dao.UserAccountRepository;
+import telran.java47.accounting.model.UserAccount;
 
 @Component
-@Order(20)
 @RequiredArgsConstructor
+@Order(20)
 public class RolesManagingFilter implements Filter {
 
 	final UserAccountRepository userAccountRepository;
@@ -28,9 +29,19 @@ public class RolesManagingFilter implements Filter {
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) resp;
-		System.out.println(request.getUserPrincipal().getName());
-		//TODO
+		
+		if(checkEndPoint(request.getMethod(), request.getServletPath())) {
+			UserAccount userAccount = userAccountRepository.findById(request.getUserPrincipal().getName()).get();
+			if(!userAccount.getRoles().contains("Administrator".toUpperCase())) {
+				response.sendError(403);
+				return;
+			}
+		}
 		chain.doFilter(request, response);
+	}
+	
+	private boolean checkEndPoint(String method, String path) {
+		return path.matches("/account/user/\\w+/\\w+/?");
 	}
 
 }
