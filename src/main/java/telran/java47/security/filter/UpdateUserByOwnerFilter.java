@@ -1,6 +1,7 @@
 package telran.java47.security.filter;
 
 import java.io.IOException;
+import java.security.Principal;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -13,35 +14,37 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import lombok.RequiredArgsConstructor;
-import telran.java47.accounting.dao.UserAccountRepository;
-import telran.java47.accounting.model.UserAccount;
-
 @Component
-@RequiredArgsConstructor
-@Order(20)
-public class RolesManagingFilter implements Filter {
+@Order(30)
+public class UpdateUserByOwnerFilter implements Filter {
 
-	final UserAccountRepository userAccountRepository;
-	
+
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
 			throws IOException, ServletException {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) resp;
-		
-		if(checkEndPoint(request.getMethod(), request.getServletPath())) {
-			UserAccount userAccount = userAccountRepository.findById(request.getUserPrincipal().getName()).get();
-			if(!userAccount.getRoles().contains("Administrator".toUpperCase())) {
+
+		String path = request.getServletPath();
+		if(checkEndPoint(request.getMethod(), path)) {
+			Principal principal= request.getUserPrincipal();
+			String[] arr =path.split("/");
+			String user = arr[arr.length-1];
+			if(!principal.getName().equalsIgnoreCase(user)) {
 				response.sendError(403);
 				return;
+//			if(checkEndPoint(request.getMethod(), path)) {
+//			if(!request.getUserPrincipal().getName().equalsIgnoreCase(path.split("/")[3])) {
+//				response.sendError(403);
+//				return;
 			}
 		}
 		chain.doFilter(request, response);
+
 	}
 	
 	private boolean checkEndPoint(String method, String path) {
-		return path.matches("/account/user/\\w+/role/\\w+/?");
+		return "PUT".equalsIgnoreCase(method) && path.matches("/account/user/\\w+/?");
 	}
 
 }

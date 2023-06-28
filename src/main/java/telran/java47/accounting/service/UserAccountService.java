@@ -3,11 +3,11 @@ package telran.java47.accounting.service;
 import telran.java47.accounting.dto.RolesDto;
 import telran.java47.accounting.dto.UserDto;
 import telran.java47.accounting.dto.UserEditDto;
-import telran.java47.accounting.dto.UserRegisyterDto;
+import telran.java47.accounting.dto.UserRegisterDto;
 
 public interface UserAccountService {
 
-	UserDto register(UserRegisyterDto userRegisyterDto);
+	UserDto register(UserRegisterDto userRegisyterDto);
 
 	UserDto getUser(String login);
 

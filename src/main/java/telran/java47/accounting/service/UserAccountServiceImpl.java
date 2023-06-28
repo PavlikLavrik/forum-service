@@ -10,7 +10,7 @@ import telran.java47.accounting.dao.UserAccountRepository;
 import telran.java47.accounting.dto.RolesDto;
 import telran.java47.accounting.dto.UserDto;
 import telran.java47.accounting.dto.UserEditDto;
-import telran.java47.accounting.dto.UserRegisyterDto;
+import telran.java47.accounting.dto.UserRegisterDto;
 import telran.java47.accounting.dto.exceptions.UserExistsException;
 import telran.java47.accounting.dto.exceptions.UserNotFoundException;
 import telran.java47.accounting.model.UserAccount;
@@ -23,7 +23,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 	final ModelMapper modelMapper;
 
 	@Override
-	public UserDto register(UserRegisyterDto userRegisyterDto) {
+	public UserDto register(UserRegisterDto userRegisyterDto) {
 		if (userAccountRepository.existsById(userRegisyterDto.getLogin())) {
 			throw new UserExistsException();
 		}

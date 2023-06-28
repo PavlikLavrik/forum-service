@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 import telran.java47.accounting.dto.RolesDto;
 import telran.java47.accounting.dto.UserDto;
 import telran.java47.accounting.dto.UserEditDto;
-import telran.java47.accounting.dto.UserRegisyterDto;
+import telran.java47.accounting.dto.UserRegisterDto;
 import telran.java47.accounting.service.UserAccountService;
 
 @RestController
@@ -29,7 +29,7 @@ public class UserAccountController {
 	final UserAccountService userAccountService;
 
 	@PostMapping("/register")
-	public UserDto register(@RequestBody UserRegisyterDto userRegisyterDto) {
+	public UserDto register(@RequestBody UserRegisterDto userRegisyterDto) {
 		return userAccountService.register(userRegisyterDto);
 	}
 
