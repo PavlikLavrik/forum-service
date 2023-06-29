@@ -10,7 +10,7 @@ import lombok.Getter;
 public class User implements Principal {	
 	String username;
 	@Getter
-	Set<String> roles;
+	Set<Role> roles;
 	
 
 	@Override

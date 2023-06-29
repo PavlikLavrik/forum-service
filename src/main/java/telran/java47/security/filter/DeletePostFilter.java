@@ -11,11 +11,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import telran.java47.post.dao.PostRepository;
 import telran.java47.post.model.Post;
+import telran.java47.security.model.Role;
 import telran.java47.security.model.User;
 
 @Component
@@ -38,7 +40,7 @@ public class DeletePostFilter implements Filter {
 			String postId = arr[arr.length - 1];
 			Post post = postRepository.findById(postId).orElse(null);
 			if (post == null || !(user.getName().equals(post.getAuthor())
-					         || user.getRoles().contains("MODERATOR"))) {
+					         || user.getRoles().contains(Role.MODERATOR))) {
 				response.sendError(403);
 				return;
 			}
@@ -48,6 +50,6 @@ public class DeletePostFilter implements Filter {
 	}
 
 	private boolean checkEndPoint(String method, String path) {
-		return "PUT".equalsIgnoreCase(method) && path.matches("/forum/post/\\w+/?");
+		return HttpMethod.DELETE.matches(method) && path.matches("/forum/post/\\w+/?");
 	}
 }

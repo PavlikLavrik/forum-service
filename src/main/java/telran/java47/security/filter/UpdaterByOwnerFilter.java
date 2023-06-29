@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -44,9 +45,9 @@ public class UpdaterByOwnerFilter implements Filter {
 	}
 	
 	private boolean checkEndPoint(String method, String path) {
-		return "PUT".equalsIgnoreCase(method) && path.matches("/account/user/\\w+/?")
-				|| "POST".equalsIgnoreCase(method) && path.matches("/forum/post/\\w+/?")
-				|| "PUT".equalsIgnoreCase(method) && path.matches("/forum/post/\\w+/comment/\\w+?");
+		return HttpMethod.PUT.matches(method) && path.matches("/account/user/\\w+/?")
+				|| HttpMethod.POST.matches(method) && path.matches("/forum/post/\\w+/?")
+				|| HttpMethod.PUT.matches(method) && path.matches("/forum/post/\\w+/comment/\\w+?");
 	}
 
 }

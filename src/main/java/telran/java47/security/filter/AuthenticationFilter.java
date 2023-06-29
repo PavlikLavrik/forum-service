@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.Base64;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -16,12 +17,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import telran.java47.accounting.dao.UserAccountRepository;
 import telran.java47.accounting.model.UserAccount;
 import telran.java47.security.context.SecurityContext;
+import telran.java47.security.model.Role;
 import telran.java47.security.model.User;
 
 @Component
@@ -53,7 +56,11 @@ public class AuthenticationFilter implements Filter {
 					response.sendError(401, "login or password is not valid");
 					return;
 				}
-				user = new User(userAccount.getLogin(), userAccount.getRoles());
+				Set<Role> roles= userAccount.getRoles()
+											.stream()
+											.map(r->Role.valueOf(r.toUpperCase()))
+											.collect(Collectors.toSet());
+				user = new User(userAccount.getLogin(), roles);
 				securityContext.addUserSession(sessionId, user);
 			}
 			
@@ -64,7 +71,7 @@ public class AuthenticationFilter implements Filter {
 
 	private boolean checkEndPoint(String method, String path) {
 		return !(
-				("POST".equalsIgnoreCase(method) && path.matches("/account/register/?"))
+				(HttpMethod.POST.matches(method) && path.matches("/account/register/?"))
 				|| path.matches("/forum/posts/\\w+(/\\w+)?/?")
 				);
 	}
@@ -77,9 +84,9 @@ public class AuthenticationFilter implements Filter {
 
 	private static class WrappedRequest extends HttpServletRequestWrapper {
 		String login;
-		Set<String> roles;
+		Set<Role> roles;
 
-		public WrappedRequest(HttpServletRequest request, String login, Set<String> roles) {
+		public WrappedRequest(HttpServletRequest request, String login, Set<Role> roles) {
 			super(request);
 			this.login = login;
 			this.roles = roles;
