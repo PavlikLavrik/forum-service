@@ -1,6 +1,8 @@
 package telran.java47.accounting.service;
 
-import org.mindrot.jbcrypt.BCrypt;
+
+import java.time.LocalDate;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +25,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 	final UserAccountRepository userAccountRepository;
 	final ModelMapper modelMapper;
 	final PasswordEncoder passwordEncoder;
+	long passwordPeriod = 60;
 
 	@Override
 	public UserDto register(UserRegisterDto userRegisyterDto) {
@@ -30,9 +33,9 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 			throw new UserExistsException();
 		}
 		UserAccount userAccount = modelMapper.map(userRegisyterDto, UserAccount.class);
-		userAccount.addRole("USER");
 		String password = passwordEncoder.encode(userRegisyterDto.getPassword());
 		userAccount.setPassword(password);
+		userAccount.setPasswordExpDate(LocalDate.now().plusDays(passwordPeriod));
 		userAccountRepository.save(userAccount);
 		return modelMapper.map(userAccount, UserDto.class);
 	}
@@ -83,6 +86,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 		UserAccount userAccount = userAccountRepository.findById(login).orElseThrow(UserNotFoundException::new);
 		String password = passwordEncoder.encode(newPassword);
 		userAccount.setPassword(password);
+		userAccount.setPasswordExpDate(LocalDate.now().plusDays(passwordPeriod));
 		userAccountRepository.save(userAccount);
 
 	}
@@ -90,11 +94,11 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 	@Override
 	public void run(String... args) throws Exception {
 		if(!userAccountRepository.existsById("admin")) {
-			String password = BCrypt.hashpw("admin", BCrypt.gensalt());
+			String password = passwordEncoder.encode("admin");
 			UserAccount userAccount = new UserAccount("admin", password, "", "");
-			userAccount.addRole("USER");
 			userAccount.addRole("MODERATOR");
 			userAccount.addRole("ADMINISTRATOR");
+			userAccount.setPasswordExpDate(LocalDate.now().plusDays(passwordPeriod));
 			userAccountRepository.save(userAccount);
 		}
 		
