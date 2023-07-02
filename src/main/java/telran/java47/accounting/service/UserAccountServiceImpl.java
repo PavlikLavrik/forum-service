@@ -3,6 +3,7 @@ package telran.java47.accounting.service;
 import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 
 	final UserAccountRepository userAccountRepository;
 	final ModelMapper modelMapper;
+	final PasswordEncoder passwordEncoder;
 
 	@Override
 	public UserDto register(UserRegisterDto userRegisyterDto) {
@@ -28,9 +30,9 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 			throw new UserExistsException();
 		}
 		UserAccount userAccount = modelMapper.map(userRegisyterDto, UserAccount.class);
-		String password = BCrypt.hashpw(userRegisyterDto.getPassword(), BCrypt.gensalt());
-		userAccount.setPassword(password);
 		userAccount.addRole("USER");
+		String password = passwordEncoder.encode(userRegisyterDto.getPassword());
+		userAccount.setPassword(password);
 		userAccountRepository.save(userAccount);
 		return modelMapper.map(userAccount, UserDto.class);
 	}
@@ -79,7 +81,7 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
 	@Override
 	public void changePassword(String login, String newPassword) {
 		UserAccount userAccount = userAccountRepository.findById(login).orElseThrow(UserNotFoundException::new);
-		String password = BCrypt.hashpw(newPassword, BCrypt.gensalt());
+		String password = passwordEncoder.encode(newPassword);
 		userAccount.setPassword(password);
 		userAccountRepository.save(userAccount);
 
